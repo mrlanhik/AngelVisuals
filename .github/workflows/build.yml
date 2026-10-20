@@ -1,0 +1,33 @@
+name: Build Angel Visuals EXE
+
+on: 
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        
+    - name: Compile Java
+      run: javac -encoding UTF-8 AngelVisuals.java
+      
+    - name: Create JAR
+      run: jar --create --file AngelVisuals.jar --main-class AngelVisuals AngelVisuals*.class
+      
+    - name: Build EXE with jpackage
+      run: jpackage --type app-image --name "Angel Visuals" --input . --main-jar AngelVisuals.jar --main-class AngelVisuals --dest dist
+      
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: AngelVisuals-Windows
+        path: dist/
